@@ -122,5 +122,24 @@ namespace VideoGameApi.Controllers
             videoGames.Add(newGame);
             return CreatedAtAction(nameof(GetVideoGameById), new { id = newGame.Id }, newGame);
         }
+
+        [HttpPut("{id}")]
+        public IActionResult UpdateVideoGame(int id, VideoGame updatedGame)
+        {
+            var game = videoGames.FirstOrDefault(g => g.Id == id);
+            if (game is null)
+            {
+                return NotFound();
+
+            }
+
+            game.Title = updatedGame.Title;
+            game.Plataform = updatedGame.Plataform;
+            game.Developer = updatedGame.Developer;
+            game.Publisher = updatedGame.Publisher;
+
+            return NoContent();
+
+        }
     }
 }
