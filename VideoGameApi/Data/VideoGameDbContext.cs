@@ -1,22 +1,24 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.EntityFrameworkCore;
 
-namespace VideoGameApi.Controllers
+namespace VideoGameApi.Data
 {
-    [Route("api/[controller]")]
-    [ApiController]
-    public class VideoGameController : ControllerBase
+    public class VideoGameDbContext(DbContextOptions<VideoGameDbContext> options) : DbContext(options)
     {
-        static private List<VideoGame> videoGames = new List<VideoGame>
+        public DbSet<VideoGame> VideoGames => Set<VideoGame>();
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            new VideoGame
-            {
-                Id = 1,
-                Title = "The Legend of Zelda: Breath of the Wild",
-                Plataform = "Nintendo Switch",
-                Developer = "Nintendo EPD",
-                Publisher = "Nintendo"
-            },
+            base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<VideoGame>().HasData(
+                new VideoGame
+                {
+                    Id = 1,
+                    Title = "The Legend of Zelda: Breath of the Wild",
+                    Plataform = "Nintendo Switch",
+                    Developer = "Nintendo EPD",
+                    Publisher = "Nintendo"
+                },
             new VideoGame
             {
                 Id = 2,
@@ -89,69 +91,8 @@ namespace VideoGameApi.Controllers
                 Developer = "Epic Games",
                 Publisher = "Epic Games"
             }
-        };
-
-        [HttpGet]
-        public ActionResult<List<VideoGame>> GetVideoGames()
-        {
-            return Ok(videoGames);
-        }
-
-        [HttpGet]
-        [Route("{id}")]
-        public ActionResult<VideoGame> GetVideoGameById(int id)
-        {
-            var game = videoGames.FirstOrDefault(g => g.Id == id);
-            if (game is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(game);
-        }
-
-        [HttpPost]
-        public ActionResult<VideoGame> AddVideoGame(VideoGame newGame)
-        {
-            if (newGame is null)
-            {
-                return BadRequest();
-            }
-
-            newGame.Id = videoGames.Max(g => g.Id) + 1;
-            videoGames.Add(newGame);
-            return CreatedAtAction(nameof(GetVideoGameById), new { id = newGame.Id }, newGame);
-        }
-
-        [HttpPut("{id}")]
-        public IActionResult UpdateVideoGame(int id, VideoGame updatedGame)
-        {
-            var game = videoGames.FirstOrDefault(g => g.Id == id);
-            if (game is null)
-            {
-                return NotFound();
-
-            }
-
-            game.Title = updatedGame.Title;
-            game.Plataform = updatedGame.Plataform;
-            game.Developer = updatedGame.Developer;
-            game.Publisher = updatedGame.Publisher;
-
-            return NoContent();
-
-        }
-
-        [HttpDelete("{id}")]
-        public IActionResult DeleteVideoGame(int id)
-        {
-            var game = videoGames.FirstOrDefault(g => g.Id == id);
-            if (game is null)
-            {
-                return NotFound();
-            }
-            videoGames.Remove(game);
-            return NoContent();
+            );
         }
     }
+
 }
